@@ -1,35 +1,7 @@
 /* Web Kilat Ultimate Engine V3 - Auto-Inject Edition
    Powered by Perintis Digital 
+   Updates: Added Delete (removeFromCart) & Reset (resetCart) functionality.
 */
-
-const industryThemes = {
-    'Islamic': { primary: '#064e3b', secondary: '#d97706' },
-    'Automotive': { primary: '#dc2626', secondary: '#171717' },
-    'Beauty': { primary: '#fce7f3', secondary: '#fbbf24' },
-    'Education': { primary: '#2563eb', secondary: '#eab308' },
-    // Tambah industri lain ikut senarai Master Prompt kau
-};
-
-function applyTheme() {
-    const meta = document.getElementById('biz-meta');
-    const industry = meta?.dataset.industry || 'Default';
-    const theme = industryThemes[industry] || { primary: '#0f172a', secondary: '#dc2626' };
-
-    // Inject CSS variables ke dalam head
-    const style = document.createElement('style');
-    style.innerHTML = `
-        :root {
-            --color-primary: ${theme.primary};
-            --color-secondary: ${theme.secondary};
-        }
-    `;
-    document.head.appendChild(style);
-}
-applyTheme();
-
-
-
-
 
 document.addEventListener('DOMContentLoaded', function() {
     // 1. AUTO-INJECT DRAWER HTML
@@ -42,21 +14,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </a>
             </div>
+            
             <div id="cart-items" class="flex-grow overflow-y-auto space-y-4"></div>
+            
             <div class="border-t pt-6 mt-6">
                 <div class="flex justify-between text-xl font-bold mb-6">
                     <span>Jumlah:</span>
                     <span id="cart-total" class="text-blue-900">RM 0.00</span>
                 </div>
+                
                 <div class="space-y-3 mb-6">
                     <input type="text" id="cust-name" placeholder="Nama Penuh" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-900 outline-none transition-all">
                     <input type="tel" id="cust-phone" placeholder="No. Telefon WhatsApp" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-900 outline-none transition-all">
                     <textarea id="cust-address" placeholder="Alamat Penghantaran" rows="2" class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-900 outline-none transition-all"></textarea>
                 </div>
-                <button id="checkout-whatsapp" class="w-full bg-[#25D366] text-white py-4 rounded-2xl font-bold text-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 mb-3">
-                    Pesan via WhatsApp
-                </button>
-                <button id="copy-order" class="w-full bg-gray-100 text-gray-700 py-3 rounded-2xl font-bold text-sm hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
+
+                <div class="grid grid-cols-4 gap-2 mb-3">
+                    <button id="reset-cart" class="col-span-1 bg-gray-100 text-gray-500 py-4 rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center shadow-sm" title="Kosongkan Troli">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
+                    <button id="checkout-whatsapp" class="col-span-3 bg-[#25D366] text-white py-4 rounded-2xl font-bold text-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-md">
+                        Pesan via WhatsApp
+                    </button>
+                </div>
+                
+                <button id="copy-order" class="w-full bg-gray-50 text-gray-500 py-3 rounded-2xl font-semibold text-sm hover:bg-gray-100 transition-all flex items-center justify-center gap-2">
                     Salin Info Pesanan
                 </button>
             </div>
@@ -82,13 +64,21 @@ document.addEventListener('DOMContentLoaded', function() {
         cart.forEach((item, index) => {
             total += (item.price * item.quantity);
             const div = document.createElement('div');
-            div.className = 'bg-gray-50 p-4 rounded-2xl border flex justify-between items-center';
+            div.className = 'bg-gray-50 p-4 rounded-2xl border flex justify-between items-center group relative';
             div.innerHTML = `
-                <div><div class="font-bold text-sm text-gray-800">${item.name}</div><div class="text-blue-900 font-bold text-xs">RM ${item.price.toFixed(2)}</div></div>
-                <div class="flex items-center gap-3 bg-white px-3 py-1 rounded-full border shadow-sm text-xs">
-                    <button onclick="changeQty(${index}, -1)" class="text-gray-400 hover:text-red-500">-</button>
-                    <span class="font-bold w-4 text-center">${item.quantity}</span>
-                    <button onclick="changeQty(${index}, 1)" class="text-gray-400 hover:text-green-500">+</button>
+                <div class="pr-8">
+                    <div class="font-bold text-sm text-gray-800">${item.name}</div>
+                    <div class="text-blue-900 font-bold text-xs">RM ${item.price.toFixed(2)}</div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-3 bg-white px-3 py-1 rounded-full border shadow-sm text-xs">
+                        <button onclick="changeQty(${index}, -1)" class="text-gray-400 hover:text-red-500 font-bold px-1">-</button>
+                        <span class="font-bold w-4 text-center">${item.quantity}</span>
+                        <button onclick="changeQty(${index}, 1)" class="text-gray-400 hover:text-green-500 font-bold px-1">+</button>
+                    </div>
+                    <button onclick="removeFromCart(${index})" class="text-gray-300 hover:text-red-500 transition-colors" title="Padam">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0-1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
                 </div>`;
             container.appendChild(div);
         });
@@ -99,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.addToCart = function(n, p) {
-        if (navigator.vibrate) navigator.vibrate(50); // Vibration Feedback
+        if (navigator.vibrate) navigator.vibrate(50); 
         const idx = cart.findIndex(i => i.name === n);
         if (idx > -1) cart[idx].quantity++; else cart.push({ name: n, price: p, quantity: 1 });
         updateUI(); toggleCart(true);
@@ -107,6 +97,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.changeQty = function(i, d) {
         cart[i].quantity += d; if (cart[i].quantity <= 0) cart.splice(i, 1); updateUI();
+    };
+
+    // FUNGSI BARU: DELETE ITEM
+    window.removeFromCart = function(index) {
+        cart.splice(index, 1);
+        updateUI();
+    };
+
+    // FUNGSI BARU: RESET CART
+    window.resetCart = function() {
+        if(confirm('Kosongkan semua item dalam troli?')) {
+            cart = [];
+            updateUI();
+        }
     };
 
     function toggleCart(show) {
@@ -138,6 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Listeners
     document.getElementById('close-cart').onclick = () => toggleCart(false);
     document.getElementById('cart-overlay').onclick = () => toggleCart(false);
+    document.getElementById('reset-cart').onclick = () => resetCart();
+    
     const navTgl = document.getElementById('cart-toggle') || document.querySelector('[onclick="toggleCart()"]');
     if(navTgl) navTgl.onclick = (e) => { e.preventDefault(); toggleCart(true); };
     
