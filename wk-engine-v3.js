@@ -3,6 +3,65 @@
    Updates: Added Delete (removeFromCart) & Reset (resetCart) functionality.
 */
 
+// --- FUNGSI ANIMASI BACKGROUND (PARTICLES) ---
+function initParticlesBackground() {
+    const particleContainer = document.getElementById('particles-bg');
+    
+    // Kalau tak wujud div tu, kita abaikan (tak bazir memory)
+    if (!particleContainer) return;
+
+    // Load Particles.js secara dinamik
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js';
+    script.onload = function() {
+        // Configurasi ala-ala aadigital (Network AI)
+        particlesJS("particles-bg", {
+            "particles": {
+                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": ["#a855f7", "#3b82f6"] }, // Warna titik (purple/blue)
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": false },
+                "size": { "value": 3, "random": true },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#8b5cf6", // Warna garisan
+                    "opacity": 0.3,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 1.5, // Bergerak perlahan dan elegan
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": { "enable": true, "mode": "grab" }, // Garisan sambung ke mouse bila hover
+                    "onclick": { "enable": true, "mode": "push" },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": { "distance": 140, "line_linked": { "opacity": 0.8 } },
+                    "push": { "particles_nb": 3 }
+                }
+            },
+            "retina_detect": true
+        });
+    };
+    document.body.appendChild(script);
+}
+
+// Jalankan fungsi bila script engine diload
+document.addEventListener('DOMContentLoaded', () => {
+    initParticlesBackground();
+});
+
 
 // Function khas untuk inject CSS bisnes.live
 function initBisnesLiveStyles() {
