@@ -3,6 +3,33 @@
    Updates: Added Delete (removeFromCart) & Reset (resetCart) functionality.
 */
 
+
+// Function khas untuk inject CSS bisnes.live
+function initBisnesLiveStyles() {
+  const engineStyles = `
+    /* 3D Flip Card FX */
+    .flip-card { background-color: transparent; perspective: 1000px; }
+    .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
+    .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 1.5rem; }
+    .flip-card-back { transform: rotateY(180deg); }
+
+    /* Magic Media Float FX */
+    .magic-media-item { animation: float 6s ease-in-out infinite; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+  `;
+
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = engineStyles;
+  document.head.appendChild(styleSheet);
+}
+
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // 1. AUTO-INJECT DRAWER HTML
     const drawerHTML = `
