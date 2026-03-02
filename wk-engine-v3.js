@@ -7,6 +7,23 @@
 // Function khas untuk inject CSS bisnes.live
 function initBisnesLiveStyles() {
   const engineStyles = `
+
+  /* Magic Glowing Icon FX */
+    .magic-icon-box {
+      position: relative; border-radius: 0.75rem; z-index: 1; overflow: hidden; display: flex; align-items: center; justify-content: center;
+    }
+    .magic-icon-box::before {
+      content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent 0%, transparent 70%, #a855f7 100%); /* Warna purple ala aadigital */
+      animation: rotate-magic-border 3s linear infinite; z-index: -2;
+    }
+    .magic-icon-box::after {
+      content: ""; position: absolute; inset: 2px; background: inherit; border-radius: calc(0.75rem - 2px); z-index: -1;
+    }
+    @keyframes rotate-magic-border {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
     /* 3D Flip Card FX */
     .flip-card { background-color: transparent; perspective: 1000px; }
     .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s; transform-style: preserve-3d; }
