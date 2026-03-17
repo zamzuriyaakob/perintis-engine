@@ -3,6 +3,40 @@
    Updates: Added Delete (removeFromCart) & Reset (resetCart) functionality.
 */
 
+/**
+ * Perintis Engine v3 - Web Kilat Digital Card Logic
+ * Author: Zamzuri Yaakob
+ */
+
+// --- FUNGSI 1: 3D CARD FLIP SAHAJA ---
+function init3DCardFlip() {
+    const card = document.querySelector('.card-inner');
+
+    if (card) {
+        card.style.cursor = 'pointer';
+        card.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        card.addEventListener('click', () => {
+            // Hanya kawal pusingan kad
+            if (card.style.transform === 'rotateY(180deg)') {
+                card.style.transform = 'rotateY(0deg)';
+            } else {
+                card.style.transform = 'rotateY(180deg)';
+            }
+        });
+    }
+
+    // Inject CSS for Card Structure
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .card-container { perspective: 1000px; }
+        .card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 1.5rem; }
+        .card-back { transform: rotateY(180deg); }
+    `;
+    document.head.appendChild(style);
+}
+
 // --- FUNGSI ANIMASI BACKGROUND (PARTICLES) ---
 function initParticlesBackground() {
     const particleContainer = document.getElementById('particles-bg');
