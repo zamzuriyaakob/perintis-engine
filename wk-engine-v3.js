@@ -7,34 +7,125 @@
  * Perintis Engine v3 - Web Kilat Digital Card Logic
  * Author: Zamzuri Yaakob
  */
-
-// --- FUNGSI 1: 3D CARD FLIP SAHAJA ---
+// --- FUNGSI 1: 3D CARD FLIP SAHAJA (REVISED) ---
 function init3DCardFlip() {
+    const scene = document.querySelector('.card-container') || document.getElementById('card-scene');
     const card = document.querySelector('.card-inner');
+    const control = document.querySelector('[data-flip-card]'); // optional dedicated button
 
-    if (card) {
-        card.style.cursor = 'pointer';
-        card.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        card.addEventListener('click', () => {
-            // Hanya kawal pusingan kad
-            if (card.style.transform === 'rotateY(180deg)') {
-                card.style.transform = 'rotateY(0deg)';
-            } else {
-                card.style.transform = 'rotateY(180deg)';
+    if (!card) return;
+
+    // Inject CSS once only
+    if (!document.getElementById('wk-3d-flip-style')) {
+        const style = document.createElement('style');
+        style.id = 'wk-3d-flip-style';
+        style.textContent = `
+            .card-container { perspective: 1000px; }
+            .card-inner {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                transform-style: preserve-3d;
+                transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                will-change: transform;
             }
-        });
+            .card-inner.is-flipped { transform: rotateY(180deg); }
+            .card-front, .card-back {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                border-radius: 1.5rem;
+                overflow: hidden;
+            }
+            .card-back { transform: rotateY(180deg); }
+
+            .wk-flip-error {
+                margin-top: 10px;
+                font-size: 12px;
+                color: #b91c1c;
+                text-align: center;
+                display: none;
+            }
+            .wk-flip-error.show { display: block; }
+        `;
+        document.head.appendChild(style);
     }
 
-    // Inject CSS for Card Structure
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .card-container { perspective: 1000px; }
-        .card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
-        .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 1.5rem; }
-        .card-back { transform: rotateY(180deg); }
-    `;
-    document.head.appendChild(style);
+    // UX affordance
+    card.style.cursor = 'pointer';
+    if (scene) scene.style.cursor = 'pointer';
+
+    // Error node (for "manual flip error" fallback)
+    let errorNode = document.getElementById('wk-flip-error');
+    if (!errorNode) {
+        errorNode = document.createElement('div');
+        errorNode.id = 'wk-flip-error';
+        errorNode.className = 'wk-flip-error';
+        errorNode.textContent = 'Tidak dapat flip kad. Sila tekan butang Buka Kad sekali lagi.';
+        const host = scene || card.parentElement || document.body;
+        host.appendChild(errorNode);
+    }
+
+    function showFlipError() {
+        errorNode.classList.add('show');
+        clearTimeout(showFlipError._t);
+        showFlipError._t = setTimeout(() => errorNode.classList.remove('show'), 2200);
+    }
+
+    function toggleFlip() {
+        try {
+            const before = card.classList.contains('is-flipped');
+            card.classList.toggle('is-flipped');
+            const after = card.classList.contains('is-flipped');
+
+            // If state unchanged, treat as failed flip
+            if (before === after) showFlipError();
+
+            if (control) {
+                control.setAttribute('aria-pressed', after ? 'true' : 'false');
+                control.setAttribute('aria-label', after ? 'Tutup kad' : 'Buka kad');
+            }
+        } catch {
+            showFlipError();
+        }
+    }
+
+    // Prevent mobile double trigger (touchstart + click)
+    let lastTouchTs = 0;
+
+    function onTouchStart(e) {
+        lastTouchTs = Date.now();
+        e.preventDefault();
+        toggleFlip();
+    }
+
+    function onClick() {
+        if (Date.now() - lastTouchTs < 450) return; // ignore synthetic click after touch
+        toggleFlip();
+    }
+
+    function onKeyDown(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFlip();
+        }
+    }
+
+    // Bind to dedicated control if exists; else bind to scene/card
+    const clickTarget = control || scene || card;
+
+    clickTarget.addEventListener('click', onClick, { passive: true });
+    clickTarget.addEventListener('touchstart', onTouchStart, { passive: false });
+    clickTarget.addEventListener('keydown', onKeyDown);
+
+    // Accessibility for keyboard trigger
+    if (!control) {
+        clickTarget.setAttribute('tabindex', '0');
+        clickTarget.setAttribute('role', 'button');
+        clickTarget.setAttribute('aria-label', 'Klik atau ketuk untuk buka kad');
+    }
 }
 
 // --- FUNGSI ANIMASI BACKGROUND (PARTICLES) ---
