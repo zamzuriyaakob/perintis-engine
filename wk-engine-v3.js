@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('cust-phone').value || "-";
         const address = document.getElementById('cust-address').value || "-";
 
-        let msg = "*TEMPAHAN BARU*\\n━━━━━━━━━━━━━━\\n\\n";
+        let msg = "*New Order*\\n━━━━━━━━━━━━━━\\n\\n";
         cart.forEach(i => msg += `✅ ${i.quantity}x ${i.name} (RM ${(i.price * i.quantity).toFixed(2)})\\n`);
         msg += `\\n*TOTAL: RM ${cart.reduce((s, i) => s + (i.price*i.quantity), 0).toFixed(2)}*\\n\\n*INFO:*\\nNama: ${name}\\nNo Tel: ${phone}\\nAlamat: ${address}`;
         
