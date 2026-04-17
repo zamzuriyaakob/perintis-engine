@@ -1,6 +1,10 @@
 /* Web Kilat Cart Engine - Shopping & Checkout Logic
    Powered by Perintis Digital 
+   Version: 3.1 - Fixed Global Function Exposure
 */
+
+// Ensure cart is initialized globally
+window.wkCart = window.wkCart || {};
 
 let cart = JSON.parse(localStorage.getItem('wk_cart')) || [];
 
@@ -38,9 +42,18 @@ function updateUI() {
     if (cartCount) cartCount.innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
     if (cartTotal) cartTotal.innerText = 'RM ' + total.toFixed(2);
     localStorage.setItem('wk_cart', JSON.stringify(cart));
+    
+    // Update badge if exists
+    const badge = document.querySelector('.cart-badge');
+    if (badge) {
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        badge.textContent = totalItems;
+    }
 }
 
-function addToCart(name, price) {
+// EXPOSE TO GLOBAL WINDOW - CRITICAL FIX
+window.addToCart = function(name, price) {
+    console.log('addToCart called:', name, price);
     const existing = cart.find(i => i.name === name);
     if (existing) {
         existing.quantity += 1;
@@ -49,20 +62,20 @@ function addToCart(name, price) {
     }
     updateUI();
     toggleCart(true);
-}
+};
 
-function removeFromCart(index) {
+window.removeFromCart = function(index) {
     cart.splice(index, 1);
     updateUI();
-}
+};
 
-function resetCart() {
+window.resetCart = function() {
     cart = [];
     updateUI();
     toggleCart(false);
-}
+};
 
-function checkout(bizPhone) {
+window.checkout = function(bizPhone) {
     if (cart.length === 0) return alert('Troli kosong!');
     const name = document.getElementById('cust-name')?.value || "-";
     const phone = document.getElementById('cust-phone')?.value || "-";
@@ -79,9 +92,13 @@ function checkout(bizPhone) {
     localStorage.removeItem('wk_cart');
     updateUI();
     toggleCart(false);
-}
+};
 
-// Listeners & Initialization
+// Also keep original function names for backward compatibility
+window.addToCart = window.addToCart;
+window.removeFromCart = window.removeFromCart;
+
+// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     const closeBtn = document.getElementById('close-cart');
@@ -91,4 +108,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeBtn) closeBtn.onclick = () => toggleCart(false);
     if (overlay) overlay.onclick = () => toggleCart(false);
     if (resetBtn) resetBtn.onclick = () => resetCart();
+    
+    // Initialize cart toggle button if exists
+    const cartToggle = document.getElementById('cart-toggle');
+    if (cartToggle) {
+        cartToggle.onclick = (e) => {
+            e.preventDefault();
+            toggleCart(true);
+        };
+    }
+    
+    console.log('WK Cart Engine v3.1 initialized');
 });
